@@ -33,7 +33,7 @@ class DataflowProducerConsumer
 
         return bytesProcessed;
     }
-    static async Task<int> ConsumeAsync(IReceivableSourceBlock<byte[]> source)
+    static async Task<int> ConsumeMultiConsumerAsync(IReceivableSourceBlock<byte[]> source)
     {
         int bytesProcessed = 0;
         while (await source.OutputAvailableAsync())
@@ -41,7 +41,7 @@ class DataflowProducerConsumer
             while (source.TryReceive(out byte[] data))
             {
                 bytesProcessed += data.Length;
-                Console.WriteLine($"Processed {bytesProcessed:#,#} bytes. consumer {Thread.GetCurrentProcessorId()}");
+                Console.WriteLine($"Processed {bytesProcessed:#,#} bytes. consumer {Thread.CurrentThread.ManagedThreadId}");
                 Thread.Sleep(500);
             }
         }
@@ -50,14 +50,12 @@ class DataflowProducerConsumer
     static async Task Main()
     {
         var buffer = new BufferBlock<byte[]>();
-        var consumerTask = ConsumeAsync(buffer);
-        var consumer1Task = ConsumeAsync(buffer);
+        var consumerTask = ConsumeMultiConsumerAsync(buffer);
+        var consumer1Task = ConsumeMultiConsumerAsync(buffer);
         Produce(buffer);
 
         var bytesProcessed = await consumerTask;
-        Console.WriteLine($"Processed {bytesProcessed:#,#} bytes. Producer");
         var bytesProcessed1 = await consumer1Task;
-        Console.WriteLine($"Processed {bytesProcessed1:#,#} bytes. Producer");
 
     }
 }
