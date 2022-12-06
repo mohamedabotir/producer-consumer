@@ -1,6 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
-using System.Threading.Tasks.Dataflow;
+﻿using System.Threading.Tasks.Dataflow;
 
 class DataflowProducerConsumer
 {
@@ -13,7 +11,8 @@ class DataflowProducerConsumer
             var buffer = new byte[1024];
             rand.NextBytes(buffer);
             target.Post(buffer);
-
+            Console.WriteLine("Produce 1024");
+            Thread.Sleep(100);
         }
 
         target.Complete();
